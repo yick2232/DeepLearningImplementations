@@ -1,13 +1,12 @@
 from __future__ import print_function
 
 import os
-import time
-import json
 import xd_data
 import argparse
 import densenet
 import numpy as np
 import keras.backend as K
+from sklearn.metrics import classification_report
 
 # from keras.datasets import cifar10
 from keras.optimizers import Adam
@@ -113,54 +112,16 @@ def run_cifar10(data_dir,
     ####################
 
     print("Training")
+    model.fit(x=X_train,
+              y=Y_train,
+              epochs=nb_epoch,
+              batch_size=batch_size,
+              validation_split=0.1)
+    preds = model.predict(X_test)
+    pred_labels = np.argmax(preds, 1)
+    report = classification_report(y_test, pred_labels)
+    print(report)
 
-    list_train_loss = []
-    list_test_loss = []
-    list_learning_rate = []
-
-    for e in range(nb_epoch):
-
-        if e == int(0.5 * nb_epoch):
-            K.set_value(model.optimizer.lr, np.float32(learning_rate / 10.))
-
-        if e == int(0.75 * nb_epoch):
-            K.set_value(model.optimizer.lr, np.float32(learning_rate / 100.))
-
-        split_size = batch_size
-        num_splits = X_train.shape[0] / split_size
-        arr_splits = np.array_split(np.arange(X_train.shape[0]), num_splits)
-
-        l_train_loss = []
-        start = time.time()
-
-        for batch_idx in arr_splits:
-
-            X_batch, Y_batch = X_train[batch_idx], Y_train[batch_idx]
-            train_logloss, train_acc = model.train_on_batch(X_batch, Y_batch)
-
-            l_train_loss.append([train_logloss, train_acc])
-
-        test_logloss, test_acc = model.evaluate(X_test,
-                                                Y_test,
-                                                verbose=0,
-                                                batch_size=64)
-        list_train_loss.append(np.mean(np.array(l_train_loss), 0).tolist())
-        list_test_loss.append([test_logloss, test_acc])
-        list_learning_rate.append(float(K.get_value(model.optimizer.lr)))
-        # to convert numpy array to json serializable
-        print('Epoch %s/%s, Time: %s' % (e + 1, nb_epoch, time.time() - start))
-
-        d_log = {}
-        d_log["batch_size"] = batch_size
-        d_log["nb_epoch"] = nb_epoch
-        d_log["optimizer"] = opt.get_config()
-        d_log["train_loss"] = list_train_loss
-        d_log["test_loss"] = list_test_loss
-        d_log["learning_rate"] = list_learning_rate
-
-        json_file = os.path.join('./log/experiment_log_cifar10.json')
-        with open(json_file, 'w') as fp:
-            json.dump(d_log, fp, indent=4, sort_keys=True)
 
 
 if __name__ == '__main__':
