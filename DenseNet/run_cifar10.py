@@ -11,6 +11,7 @@ from sklearn.metrics import classification_report
 # from keras.datasets import cifar10
 from keras.optimizers import Adam
 from keras.utils import np_utils
+from xd_data import session_creater
 
 
 def run_cifar10(data_dir,
@@ -112,15 +113,16 @@ def run_cifar10(data_dir,
     ####################
 
     print("Training")
-    model.fit(x=X_train,
-              y=Y_train,
-              epochs=nb_epoch,
-              batch_size=batch_size,
-              validation_split=0.1)
-    preds = model.predict(X_test)
-    pred_labels = np.argmax(preds, 1)
-    report = classification_report(y_test, pred_labels)
-    print(report)
+    with session_creater():
+      model.fit(x=X_train,
+                y=Y_train,
+                epochs=nb_epoch,
+                batch_size=batch_size,
+                validation_split=0.1)
+      preds = model.predict(X_test)
+      pred_labels = np.argmax(preds, 1)
+      report = classification_report(y_test, pred_labels)
+      print(report)
 
 
 

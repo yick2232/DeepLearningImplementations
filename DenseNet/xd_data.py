@@ -3,10 +3,10 @@
 import os
 import cv2
 import numpy as np
-from keras.utils import to_categorical
+import tensorflow as tf
+from keras.backend.tensorflow_backend import set_session
 
-
-def load_data(data_dir:str, image_size:int=128):
+def load_data(data_dir:str, image_size:int=512):
   train_dir = os.path.join(data_dir, "train_data")
   test_dir = os.path.join(data_dir, "test_data")
 
@@ -27,7 +27,7 @@ def load_data(data_dir:str, image_size:int=128):
           continue
         try:
           image = cv2.imread(fpath)
-          image = cv2.resize(image, (image_size, image_size), cv2.INTER_LINEAR)
+          image = cv2.resize(image, (image_size, image_size*2), cv2.INTER_LINEAR)
           images.append(image)
           labels.append(label_idx)
         except:
@@ -44,3 +44,10 @@ def load_data(data_dir:str, image_size:int=128):
   print("x_train.shape: {}, y_train.shape: {}".format(x_train.shape, y_train.shape))
   print("x_test.shape: {}, y_test.shape: {}".format(x_test.shape, y_test.shape))
   return (x_train, y_train), (x_test, y_test)
+
+def session_creater():
+  config = tf.ConfigProto()
+  config.gpu_options.allow_growth = True
+  session = tf.Session(config=config)
+  set_session(session)
+  return session
