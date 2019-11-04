@@ -23,10 +23,10 @@ def load_data(data_dir:str, image_size:int=512):
         continue
       fnames = os.listdir(os.path.join(dir, label_name))
       print("label_name: {}, number: {}".format(label_name, len(fnames)))
-      random.shuffle(fnames)
-      if len(fnames) < 20:
+      if 0 < len(fnames) < 20:
         tmp = [random.choice(fnames) for _ in range(20 - len(fnames))]
         fnames += tmp
+      random.shuffle(fnames)
       for fname in fnames[:200]:
         fpath = os.path.join(dir, label_name, fname)
         if fpath.endswith("gif"):
