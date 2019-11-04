@@ -3,17 +3,19 @@ from __future__ import print_function
 import os
 import time
 import json
+import xd_data
 import argparse
 import densenet
 import numpy as np
 import keras.backend as K
 
-from keras.datasets import cifar10
+# from keras.datasets import cifar10
 from keras.optimizers import Adam
 from keras.utils import np_utils
 
 
-def run_cifar10(batch_size,
+def run_cifar10(data_dir,
+                batch_size,
                 nb_epoch,
                 depth,
                 nb_dense_block,
@@ -43,15 +45,18 @@ def run_cifar10(batch_size,
     ###################
 
     # the data, shuffled and split between train and test sets
-    (X_train, y_train), (X_test, y_test) = cifar10.load_data()
+    # (X_train, y_train), (X_test, y_test) = cifar10.load_data()
+    (X_train, y_train), (X_test, y_test) = xd_data.load_data(data_dir)
 
-    nb_classes = len(np.unique(y_train))
+    nb_classes = max(y_train.tolist() + y_test.tolist()) + 1
     img_dim = X_train.shape[1:]
 
     if K.image_data_format() == "channels_first":
         n_channels = X_train.shape[1]
     else:
         n_channels = X_train.shape[-1]
+    print("nb_classes: {}, img_dim: {}, n_channels: {}".format(
+        nb_classes, img_dim, n_channels))
 
     # convert class vectors to binary class matrices
     Y_train = np_utils.to_categorical(y_train, nb_classes)
@@ -161,6 +166,8 @@ def run_cifar10(batch_size,
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Run CIFAR10 experiment')
+    parser.add_argument('--data_dir', default="./xd-data", type=str,
+                        help='data directory')
     parser.add_argument('--batch_size', default=64, type=int,
                         help='Batch size')
     parser.add_argument('--nb_epoch', default=30, type=int,
@@ -193,7 +200,8 @@ if __name__ == '__main__':
         if not os.path.exists(d):
             os.makedirs(d)
 
-    run_cifar10(args.batch_size,
+    run_cifar10(args.data_dir,
+                args.batch_size,
                 args.nb_epoch,
                 args.depth,
                 args.nb_dense_block,
