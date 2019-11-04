@@ -21,7 +21,7 @@ def load_data(data_dir:str, image_size:int=128):
         continue
       fnames = os.listdir(os.path.join(dir, label_name))
       print("label_name: {}, number: {}".format(label_name, len(fnames)))
-      for fname in fnames[:30]:
+      for fname in fnames:
         fpath = os.path.join(dir, label_name, fname)
         if fpath.endswith("gif"):
           continue
