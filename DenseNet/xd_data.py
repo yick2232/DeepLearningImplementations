@@ -12,22 +12,31 @@ def load_data(data_dir:str, image_size:int=512):
   train_dir = os.path.join(data_dir, "train_data")
   test_dir = os.path.join(data_dir, "test_data")
 
-  def read_data_from_dir(dir:str):
+  def read_data_from_dir(dir:str, test:bool=False):
     print("data_dir: {}".format(dir))
     images, labels = [], []
+    lst = []
     for label_name in os.listdir(dir):
       try:
         label_idx = int(label_name)
       except:
         print("error, label_name: {}".format(label_name))
         continue
+      lst.append((label_idx, label_name))
+    lst.sort(key=lambda items: items[0])
+
+    for label_idx, label_name in lst:
       fnames = os.listdir(os.path.join(dir, label_name))
       print("label_name: {}, number: {}".format(label_name, len(fnames)))
-      if 0 < len(fnames) < 20:
-        tmp = [random.choice(fnames) for _ in range(20 - len(fnames))]
-        fnames += tmp
-      random.shuffle(fnames)
-      for fname in fnames[:200]:
+      # sample
+      if not test:
+        if 0 < len(fnames) < 20:
+          tmp = [random.choice(fnames) for _ in range(20 - len(fnames))]
+          fnames += tmp
+        random.shuffle(fnames)
+        fnames = fnames[:400]
+        print("number by sample: {}".format(len(fnames)))
+      for fname in fnames:
         fpath = os.path.join(dir, label_name, fname)
         if fpath.endswith("gif"):
           continue
@@ -41,7 +50,7 @@ def load_data(data_dir:str, image_size:int=512):
     return images, labels
 
   images_train, labels_train = read_data_from_dir(train_dir)
-  images_test, labels_test = read_data_from_dir(test_dir)
+  images_test, labels_test = read_data_from_dir(test_dir, True)
 
   x_train = np.array(images_train)
   x_test = np.array(images_test)
