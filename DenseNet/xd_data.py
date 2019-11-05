@@ -12,6 +12,8 @@ def load_data(data_dir:str, image_size:int=256):
   train_dir = os.path.join(data_dir, "train_data")
   test_dir = os.path.join(data_dir, "test_data")
 
+  bad_labels = set()
+
   def read_data_from_dir(dir:str, test:bool=False):
     print("data_dir: {}".format(dir))
     images, labels = [], []
@@ -28,6 +30,10 @@ def load_data(data_dir:str, image_size:int=256):
     for label_idx, label_name in lst:
       fnames = os.listdir(os.path.join(dir, label_name))
       print("label_name: {}, number: {}".format(label_name, len(fnames)))
+      if not test and len(fnames) < 20:
+        bad_labels.add(label_idx)
+      if label_idx in bad_labels:
+        label_idx = 0
       # sample
       if not test:
         if 0 < len(fnames) < 20:
