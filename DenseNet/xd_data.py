@@ -8,7 +8,7 @@ from keras.backend.tensorflow_backend import set_session
 import random
 
 
-def load_data(data_dir:str, image_size:int=512):
+def load_data(data_dir:str, image_size:int=256):
   train_dir = os.path.join(data_dir, "train_data")
   test_dir = os.path.join(data_dir, "test_data")
 
@@ -34,7 +34,7 @@ def load_data(data_dir:str, image_size:int=512):
           tmp = [random.choice(fnames) for _ in range(20 - len(fnames))]
           fnames += tmp
         random.shuffle(fnames)
-        fnames = fnames[:400]
+        fnames = fnames[:300]
         print("number by sample: {}".format(len(fnames)))
       for fname in fnames:
         fpath = os.path.join(dir, label_name, fname)
